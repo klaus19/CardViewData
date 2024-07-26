@@ -8,8 +8,8 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
 class PractiseAdapter(
-      private val items:List<String>,
-      private val textCount:TextView
+    private val items:List<String>,
+    private val textCount:TextView
 ):RecyclerView.Adapter<PractiseAdapter.CardViewHolder>() {
 
     private var count=0

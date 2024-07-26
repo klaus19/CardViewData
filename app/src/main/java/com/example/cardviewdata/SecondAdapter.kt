@@ -29,21 +29,9 @@ class SecondAdapter(
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-        val item = items[position]
-        holder.textViewAdapter.text = holder.textViewAdapter.text
-
-        // Log item value and TextView text
-        Log.d("charm", "Item: $item")
-        Log.d("charm", "TextView value: ${holder.textViewAdapter.text}")
-
         holder.cardViewSecond.setOnClickListener {
-            // Get the texAdapterCount value for the clicked card
             val textAdapter = holder.textViewAdapter.text.toString()
             val texAdapterCount = textAdapter.toIntOrNull() ?: 0
-
-            // Log the value to check conversion
-            Log.d("SecondAdapter", "texAdapterCount: $texAdapterCount")
-
             showDialog(texAdapterCount)
         }
     }
@@ -51,17 +39,9 @@ class SecondAdapter(
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SetTextI18n")
     private fun showDialog(texAdapterCount: Int) {
-        // Debugging: Log the value of texAdapterCount
-        Log.d("SecondAdapter", "texAdapterCount: $texAdapterCount")
-
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_layout, null)
         val messageTextView = dialogView.findViewById<TextView>(R.id.dialog_message)
 
-        // Log current textSecondCount value
-        val currentCount = textSecondCount.text.toString()
-        Log.d("SecondAdapter", "Current textSecondCount: $currentCount")
-
-        // Ensure there's a space between the message and the count
         messageTextView.text = "Do you have apples $texAdapterCount?"
 
         val dialogBuilder = AlertDialog.Builder(context)
@@ -72,10 +52,9 @@ class SecondAdapter(
 
         dialogView.findViewById<Button>(R.id.dialog_button_positive).setOnClickListener {
             try {
-                val currentCountInt = currentCount.toInt()
-                if (currentCountInt >= texAdapterCount) {
-                    // Update textSecondCount and notify the change
-                    val newCount = currentCountInt - texAdapterCount
+                val currentCount = textSecondCount.text.toString().toInt()
+                if (currentCount >= texAdapterCount) {
+                    val newCount = currentCount - texAdapterCount
                     textSecondCount.text = newCount.toString()
 
                     // Save updated count to SharedPreferences
@@ -92,10 +71,8 @@ class SecondAdapter(
                         (context as Second).sendUpdateBroadcast(newCount)
                     }
                 } else {
-                    // Notify the user
                     showToast("Not enough points to unlock")
                 }
-
             } catch (e: NumberFormatException) {
                 Log.e("SecondAdapter", "Error parsing count: $e")
                 showToast("Error processing the count")
@@ -104,15 +81,14 @@ class SecondAdapter(
         }
 
         dialogView.findViewById<Button>(R.id.dialog_button_negative).setOnClickListener {
-            // Handle negative button click
             dialog.dismiss()
         }
 
         dialog.show()
     }
 
-    private fun showToast(messsage: String) {
-        Toast.makeText(context, messsage, Toast.LENGTH_SHORT).show()
+    private fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun getItemCount(): Int = items.size
