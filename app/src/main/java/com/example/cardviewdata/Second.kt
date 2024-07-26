@@ -1,10 +1,8 @@
 package com.example.cardviewdata
 
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
@@ -15,12 +13,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class Second:AppCompatActivity() {
+class Second : AppCompatActivity() {
 
-    private lateinit var textSecondCount:TextView
-    private lateinit var buttonSecond:Button
-    private lateinit var recycler1:RecyclerView
-
+    private lateinit var textSecondCount: TextView
+    private lateinit var buttonSecond: Button
+    private lateinit var recycler1: RecyclerView
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingInflatedId")
@@ -32,48 +29,40 @@ class Second:AppCompatActivity() {
         buttonSecond = findViewById(R.id.buttonBack)
         recycler1 = findViewById(R.id.recycler1)
 
-
-        // Register receiver
-        registerReceiver(updateReceiver, IntentFilter("com.example.UPDATE_TEXT_COUNT"),
-            RECEIVER_NOT_EXPORTED
-        )
-
-        // Load the saved text count
         loadTextCount()
 
         buttonSecond.setOnClickListener {
-            onBackPressed()
+            val newCount = textSecondCount.text.toString().toIntOrNull() ?: 0
+
+            // Save updated count to SharedPreferences
+            val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+            with(sharedPreferences.edit()) {
+                putInt("textCount", newCount)
+                apply()
+            }
+
+            // Send broadcast with the updated count
+            sendUpdateBroadcast(newCount)
+
+            // Finish the activity and return to MainActivity
+            finish()
         }
 
-        val items = listOf("A1","B1","C1")
-        val adapter = SecondAdapter(this,items,textSecondCount)
+        val items = listOf("A1")
+        val adapter = SecondAdapter(this, items, textSecondCount)
         recycler1.layoutManager = LinearLayoutManager(this)
         recycler1.adapter = adapter
-
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        // Unregister receiver
-        unregisterReceiver(updateReceiver)
     }
 
     private fun loadTextCount() {
         val sharedPreferences: SharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         val savedCount = sharedPreferences.getInt("textCount", 0)
-        findViewById<TextView>(R.id.textSecondCount).text = savedCount.toString()
+        textSecondCount.text = savedCount.toString()
     }
 
-    fun sendUpdateBroadcast(newCount:Int){
+    fun sendUpdateBroadcast(newCount: Int) {
         val intent = Intent("com.example.UPDATE_TEXT_COUNT")
         intent.putExtra("textCount", newCount)
         sendBroadcast(intent)
-    }
-    private val updateReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            val newCount = intent?.getIntExtra("textCount", 0) ?: 0
-            findViewById<TextView>(R.id.textSecondCount).text = newCount.toString()
-        }
     }
 }
